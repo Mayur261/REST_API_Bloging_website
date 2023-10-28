@@ -1,5 +1,6 @@
 <?php
 session_start(); // Start the session
+
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -16,7 +17,7 @@ if (isset($_GET['id'])) {
     $id = $_GET['id'];
 
     // Use prepared statements to protect against SQL injection
-    $sql = "SELECT title, body, topic FROM posts WHERE id = ?";
+    $sql = "SELECT title, body, topic, image FROM posts WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id); // "i" represents an integer, adjust the type if needed
 
@@ -28,6 +29,7 @@ if (isset($_GET['id'])) {
             $title = $row['title'];
             $editor = $row['body'];
             $topic = $row['topic'];
+            $image = $row['image'];
         } else {
             echo "No post found with the given ID.";
             exit();
@@ -46,6 +48,52 @@ if (isset($_GET['id'])) {
 
 $conn->close();
 ?>
+
+<?php
+
+
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "blogingwebsite_internship";
+
+$conn = new mysqli($servername, $username, $password, $database);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$topics = array(); // Initialize an array to store topics
+
+// Check if the user is logged in and a session variable 'username' is set
+if (isset($_SESSION['username'])) {
+    $username = $_SESSION['username'];
+
+    // Use prepared statements to protect against SQL injection
+    $sql = "SELECT topic FROM topic WHERE username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username); // "s" represents a string
+
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            $topics[] = $row['topic'];
+        }
+    } else {
+        echo "Error executing the query: " . $stmt->error;
+    }
+
+    $stmt->close();
+} else {
+    echo "User is not logged in or username not set in the session.";
+}
+
+$conn->close();
+?>
+
 
 
 <!DOCTYPE html>
@@ -154,52 +202,56 @@ $conn->close();
 
         <!-- ==== PAGE CONTENT ==== -->
         <div class="page-content">
-        <div class="admin-container">
-            <form action="updatepost.php" method="post" class="admin-form md-box" enctype="multipart/form-data">
-                <input type="hidden" name="id" value="<?php echo $id; ?>">
-                <h1 class="center form-title">Update Post</h1>
+            <div class="admin-container">
+                <form action="updatepost.php" method="post" class="admin-form md-box" enctype="multipart/form-data">
+                    <input type="hidden" name="id" value="<?php echo $id; ?>">
+                    <h1 class="center form-title">Update Post</h1>
 
-                <div class="input-group">
-                    <label for="title">Title</label>
-                    <input type="text" name="title" id="title" value="<?php echo $title; ?>" class="input-control">
-                </div>
-                <div class="input-group">
-                    <label for="editor">Body</label>
-                    <textarea name="editor" id="editor"><?php echo $editor; ?></textarea>
-                </div>
-                <div class="post-details">
+                    <div class="input-group">
+                        <label for="title">Title</label>
+                        <input type="text" name="title" id="title" value="<?php echo $title; ?>" class="input-control">
+                    </div>
+                    <div class="input-group">
+                        <label for="editor">Body</label>
+                        <textarea name="editor" id="editor"><?php echo $editor; ?></textarea>
+                    </div>
+                    <div class="post-details">
                     <div class="select-topic-wrapper">
-                        <div class="input-group">
-                            <label for="topic">Topic</label>
-                            <select name="topic" id="topic" class="input-control">
-                                <option value="<?php echo $topic; ?>"><?php echo $topic; ?></option>
-                                <option value="business">Business</option>
-                                <option value="life-lesson">Life Lesson</option>
-                                <option value="journal">Journal</option>
-                            </select>
+    <div class="input-group">
+        <label for="topic">Topic</label>
+        <select name="topic" id="topic" class="input-control">
+            <option value=""></option>
+            <?php
+            foreach ($topics as $topic) {
+                echo "<option value='" . $topic . "'>" . $topic . "</option>";
+            }
+            ?>
+        </select>
+    </div>
+</div>
+                        <!-- <option value="<?php echo $topic; ?>"><?php echo $topic; ?></option> -->
+                        <div class="image-wrapper">
+                            <input type="file" name="image" class="hide image-input">
+                            <button type="button" class="image-btn bg-image">
+                                <span class="choose-image-label">
+                                    <ion-icon name="image_outline" class="image-outline"></ion-icon>
+                                    <span>Choose Image</span>
+                                </span>
+                            </button>
                         </div>
                     </div>
-                    <div class="image-wrapper">
-                        <input type="file" name="image" class="hide image-input">
-                        <button type="button" class="image-btn bg-image">
-                            <span class="choose-image-label">
-                                <ion-icon name="image-outline" class="image-outline"></ion-icon>
-                                <span>Choose Image</span>
-                            </span>
-                        </button>
+                    <div class="input-group">
+                        <label for="published">
+                            <input type="checkbox" name="published" id="published">
+                            Publish
+                        </label>
                     </div>
-                </div>
-                <div class="input-group">
-                    <label for="published">
-                        <input type="checkbox" name="published" id="published">
-                        Publish
-                    </label>
-                </div>
 
-                <div class="input-group">
-                    <button type="submit" class="btn primary-btn big-btn">Save</button>
-                </div>
-            </form>
+                    <div class="input-group">
+                        <button type="submit" class="btn primary-btn big-btn">Save</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     </div>

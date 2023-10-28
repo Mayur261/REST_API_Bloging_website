@@ -14,28 +14,53 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['id'])) {
+    if (isset($_POST['id']) && isset($_POST['title']) && isset($_POST['editor']) && isset($_POST['topic'])) {
         $id = $_POST['id'];
         $title = $_POST['title'];
         $body = $_POST['editor'];
         $topic = $_POST['topic'];
 
-        // You can update other fields like image and published as needed.
+        // Handle image update
+        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+            $image_name = $_FILES['image']['name'];
+            $image_tmp_name = $_FILES['image']['tmp_name'];
+            $image_destination = "uploads/" . $image_name; // Set the destination directory
 
-        // Use prepared statements to protect against SQL injection
-        $sql = "UPDATE posts SET title = ?, body = ?, topic = ? WHERE id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sssi", $title, $body, $topic, $id); // "sssi" represents two strings and an integer, adjust the types if needed
+            // Move the uploaded image to the destination folder
+            if (move_uploaded_file($image_tmp_name, $image_destination)) {
+                // Image uploaded successfully, update it in the database
+                $sql = "UPDATE posts SET title = ?, body = ?, topic = ?, image = ? WHERE id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ssssi", $title, $body, $topic, $image_name, $id);
 
-        if ($stmt->execute()) {
-            // Post updated successfully
-            header("Location: post.php"); // Redirect to a post list page or another appropriate location
-            exit();
+                if ($stmt->execute()) {
+                    // Post updated successfully
+                    header("Location: post.php"); // Redirect to a post list page or another appropriate location
+                    exit();
+                } else {
+                    echo "Error updating the post: " . $stmt->error;
+                }
+
+                $stmt->close();
+            } else {
+                echo "Error uploading image.";
+            }
         } else {
-            echo "Error updating the post: " . $stmt->error;
-        }
+            // If no new image is uploaded, update other fields without changing the image
+            $sql = "UPDATE posts SET title = ?, body = ?, topic = ? WHERE id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sssi", $title, $body, $topic, $id);
 
-        $stmt->close();
+            if ($stmt->execute()) {
+                // Post updated successfully
+                header("Location: post.php"); // Redirect to a post list page or another appropriate location
+                exit();
+            } else {
+                echo "Error updating the post: " . $stmt->error;
+            }
+
+            $stmt->close();
+        }
     } else {
         echo "Invalid request.";
     }

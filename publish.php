@@ -1,45 +1,87 @@
 <?php
-session_start(); // Start the session
-
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "blogingwebsite_internship";
-
-$conn = new mysqli($servername, $username, $password, $database);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
+// Check if the form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['id']) && isset($_POST['title']) && isset($_POST['editor']) && isset($_POST['topic'])) {
-        $id = $_POST['id'];
-        $title = $_POST['title'];
-        $body = $_POST['editor'];
-        $topic = $_POST['topic'];
+    // Database connection credentials
+    $servername = "localhost";
+    $db_username = "root";
+    $db_password = "";
+    $database = "blogingwebsite_internship";
 
-        // You can add additional fields as needed.
+    // Create a new database connection
+    $conn = new mysqli($servername, $db_username, $db_password, $database);
 
-        // Use prepared statements to protect against SQL injection
-        $sql = "INSERT INTO publish (id, title, body, topic) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("isss", $id, $title, $body, $topic); // "isss" represents an integer and three strings, adjust the types if needed
-
-        if ($stmt->execute()) {
-            // Data inserted into the "publish" table successfully
-            header("Location: publish_list.php"); // Redirect to a publish list page or another appropriate location
-            exit();
-        } else {
-            echo "Error inserting data into the 'publish' table: " . $stmt->error;
-        }
-
-        $stmt->close();
-    } else {
-        echo "Invalid request.";
+    // Check the connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
     }
-}
 
-$conn->close();
+    // Get data from the form
+    $id = $_POST['id'];
+
+    // Update the 'published' column in the database
+    $sql = "UPDATE posts SET published = 1 WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $id);
+
+    if ($stmt->execute()) {
+        echo "Post published successfully!";
+        header("Location: post.php");
+    } else {
+        echo "Error publishing the post: " . $stmt->error;
+    }
+
+    $stmt->close();
+    $conn->close();
+}
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publish Post | Blog Template</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            margin: 20px;
+            color: #333;
+        }
+        form {
+            text-align: center;
+        }
+        button {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #258cd1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Publish Post</h1>
+    <form action="publish.php" method="post" id="publishForm">
+        <input type="hidden" name="id" value="<?php echo $_GET['id']; ?>">
+        <button type="button" onclick="confirmPublish()">Publish</button>
+    </form>
+
+    <script>
+        function confirmPublish() {
+            if (confirm("Do you really want to publish this post?")) {
+                document.getElementById("publishForm").submit();
+            }
+        }
+    </script>
+</body>
+</html>
+

@@ -237,7 +237,8 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
                             echo '<td>' . $row['id'] . '</td>';
                             echo '<td>' . $row['title'] . '</td>';
                             echo '<td><a href="#" target="_blank">' . $row['topic'] . '</a></td>';
-                            echo '<td>' . $row['published'] . '</td>';
+                           
+                            echo '<td>' . ($row['published'] == 1 ? 'Published' : 'Not Published') . '</td>';
                             echo '<td>' . $row['username'] . '</td>';
 
                             echo "<td><a href='showupdatepost.php?id=" . $row["id"] . "' class='edit'>Update</a></td>";

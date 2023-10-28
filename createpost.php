@@ -40,6 +40,89 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
     exit();
 }
 ?>
+
+<?php
+
+
+// Database connection
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "blogingwebsite_internship";
+
+$conn = new mysqli($servername, $username, $password, $database);
+
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+$topics = array(); // Initialize an array to store topics
+
+// Check if the user is logged in and a session variable 'username' is set
+if (isset($_SESSION['username'])) {
+    $username = $_SESSION['username'];
+
+    // Use prepared statements to protect against SQL injection
+    $sql = "SELECT topic FROM topic WHERE username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username); // "s" represents a string
+
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+
+        while ($row = $result->fetch_assoc()) {
+            $topics[] = $row['topic'];
+        }
+    } else {
+        echo "Error executing the query: " . $stmt->error;
+    }
+
+    $stmt->close();
+} else {
+    echo "User is not logged in or username not set in the session.";
+}
+
+$conn->close();
+?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -160,19 +243,21 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
                         <textarea name="editor"></textarea>
                     </div>
                     <div class="post-details">
-                        <div class="select-topic-wrapper">
-                            <div class="input-group">
-                                <label for="topic">Topic</label>
-                                <select name="topic" id="topic" class="input-control">
-                                    <option value=""></option>
-                                    <option value="business">Business</option>
-                                    <option value="life-lesson">Life Lesson</option>
-                                    <option value="journal">Journal</option>
-                                </select>
-                            </div>
-                        </div>
+                    <div class="select-topic-wrapper">
+    <div class="input-group">
+        <label for="topic">Topic</label>
+        <select name="topic" id="topic" class="input-control">
+            <option value=""></option>
+            <?php
+            foreach ($topics as $topic) {
+                echo "<option value='" . $topic . "'>" . $topic . "</option>";
+            }
+            ?>
+        </select>
+    </div>
+</div>
                         <div class="image-wrapper">
-                            <input type="file" name="image" class="hide image-input">
+                            <input type="file" name="image" class="hide image-input" accept="image/*, video/*" multiple>
                             <button type="button" class="image-btn bg-image">
                                 <span class="choose-image-label">
                                     <ion-icon name="image-outline" class="image-outline"></ion-icon>

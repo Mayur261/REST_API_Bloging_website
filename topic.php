@@ -1,4 +1,3 @@
-
 <?php
 session_start(); // Start the session
 
@@ -19,8 +18,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
-    $sql = "SELECT title, body, image FROM posts";
-    $result = $conn->query($sql);
+
     // Query the database to get the user's profile name
     $sql = "SELECT username FROM userregistration WHERE id = ?";
     $stmt = $conn->prepare($sql);
@@ -43,49 +41,15 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
 }
 ?>
 
-
-
 <!DOCTYPE html>
+<html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="https://celionatti.github.io/blog-template/assets/css/admin-style.css">
-    <title>Admin Dashboard | New Blog Template 2023</title>
-
-    <style>
-    .post-card-container-wrapper {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 37px; /* Adjust the gap as needed */
-        overflow: auto; /* Add overflow property to allow scrolling if content is too long */
-    }
-
-    .post-card-container {
-        background-color: #039196;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        text-align: center;
-        max-width: 350px;
-        width: calc(33.33% - 20px); /* Adjust the width and gap as needed for the desired layout */
-        margin-left: 5px; /* Add space to the left side */
-        max-height: 400px; /* Set a maximum height for the containers */
-        overflow: hidden; /* Hide overflow content */
-    }
-
-    .post-title {
-        margin-bottom: 10px; /* Adjust this value as needed for the desired spacing between title and image */
-    }
-
-    .post-content img {
-        margin: 10px 0; /* Adjust this value to control spacing between image and title, and image and body */
-    }
-
-    .post-body {
-        margin-top: 10px; /* Adjust this value as needed for the desired spacing between image and body */
-        overflow: auto; /* Add overflow property to allow scrolling if content is too long */
-    }
-</style>
+    <title>Admin Topics | New Blog Template 2023</title>
 </head>
 
 <body>
@@ -103,11 +67,11 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
                 <li class="nav-item">
                     <a href="#">
                         <ion-icon name="person-circle-outline" class="nav-icon"></ion-icon>
-                        <?php echo $userProfileName; ?> 
-                         <ion-icon name="chevron-down-outline" class="nav-icon"></ion-icon>
-                        </a>
+                        Celio Natti
+                        <ion-icon name="chevron-down-outline" class="nav-icon"></ion-icon>
+                    </a>
                     <ul class="dropdown">
-                        <li><a href="logout.php">Logout</a></li>
+                        <li><a href="#">Logout</a></li>
                     </ul>
                 </li>
             </ul>
@@ -130,14 +94,14 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
                     </a>
                 </li>
                 <li>
-                    <a href="post.php">
+                    <a href="#">
                         <ion-icon name="reader-outline" class="menu-icon"></ion-icon>
                         Post
                         <ion-icon name="chevron-forward-outline" class="chevron-forward"></ion-icon>
                     </a>
                 </li>
                 <li>
-                    <a href="topic.php">
+                    <a href="#">
                         <ion-icon name="grid-outline" class="menu-icon"></ion-icon>
                         Topics
                         <ion-icon name="chevron-forward-outline" class="chevron-forward"></ion-icon>
@@ -175,38 +139,121 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
         </div>
 
         <div class="page-content">
-            <!-- <div class="admin-container">
-                <h1 class="center">Admin Dashboard</h1>
-            </div> -->
-        
+            <div class="admin-container">
+                <div class="admin-table sm-box">
+                    <h1 class="center">Topics</h1>
+                    <hr>
 
-        <!-- <u><h2 class="page-title">Blog Posts</h2></u> -->
-        <h1 class="center">Admin Dashboard</h1>
-        <div class="post-card-container-wrapper">
-            <?php
-            while ($row = $result->fetch_assoc()) {
-                // Retrieve data from the database result
-                $title = $row['title'];
-                $body = $row['body'];
-                $image = $row['image'];
-            ?>
-            <div class="post-card-container">
-                <div class="post-content">
-                    <h2 class="post-title"><u><?php echo $title; ?></u></h2>
-                    <img src="uploads/<?php echo $image; ?>">
-                    <p class="post-body"><?php echo $body; ?></p>
+                    <div class="table-actions">
+                        <span></span>
+                        <a href="createTOPIC.php" class="btn primary-btn small-btn">
+                            <ion-icon name="add-circle-outline" class="icon"></ion-icon>
+                            Add Topic
+                        </a>
+                    </div>
+
+                    <div class="responsive-table">
+                        <table>
+                            <thead>
+                                <th>S/N</th>
+                                <th>Topic</th>
+                                <th>Description</th>
+                                <th>Update</th>
+                                <th>Delete</th>
+                           
+                            </thead>
+                            <tbody>
+                                <tr>
+                                <?php
+
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "blogingwebsite_internship";
+
+$conn = new mysqli($servername, $username, $password, $database);
+
+// Check the connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Get the username from the session
+if (isset($_SESSION['username'])) {
+    $username = $_SESSION['username'];
+} else {
+    // Handle the case where the username is not in the session
+    echo "Session username not set.";
+    exit();
+}
+
+// Query the database to fetch topics associated with the username
+$sql = "SELECT id, topic, info FROM topic WHERE username = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("s", $username);
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+// Check if there are results
+if ($result->num_rows > 0) {
+    // Output the data in a table
+    // echo '<table>';
+    // echo '<thead><th>S/N</th><th>Topic</th><th>Description</th><th>Update</th><th>Delete</th></thead>';
+    // echo '<tbody>';
+
+    while ($row = $result->fetch_assoc()) {
+        echo '<tr>';
+        echo '<td>' . $row['id'] . '</td>';
+        echo '<td>' . $row['topic'] . '</td>';
+        echo '<td>' . $row['info'] . '</td>';
+        echo "<td><a href='showupdatetopic.php?id=" . $row["id"] . "' class='edit'>Update</a></td>";
+        echo "<td><a href='deletetopic.php?id=" . $row["id"] . "' class='delete'>Delete</a></td>";
+
+        echo '</tr>';
+    }
+
+    echo '</tbody>';
+    echo '</table>';
+} else {
+    echo "No topics found " .$username. " add topic .";
+}
+
+// Close the database connection
+$stmt->close();
+$conn->close();
+?>
+
+
+                                    
+                            </tbody>
+                            <tfoot>
+                                <td colspan="6">
+                                    <div class="pagination-links">
+                                        <a href="#" class="link active">1</a>
+                                        <a href="#" class="link">2</a>
+                                        <a href="#" class="link">3</a>
+                                        <a href="#" class="link">4</a>
+                                        <a href="#" class="link">5</a>
+                                        <a href="#" class="link">6</a>
+                                        <a href="#" class="link">7</a>
+                                    </div>
+                                </td>
+                            </tfoot>
+                        </table>
+                    </div>
+
                 </div>
             </div>
-            <?php
-            }
-            ?>
-
         </div>
     </div>
-    </div>
+
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
     <script src="https://celionatti.github.io/blog-template/assets/js/admin.js"></script>
+
 </body>
+
 </html>
