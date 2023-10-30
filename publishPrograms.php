@@ -19,13 +19,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $id = $_POST['id'];
 
     // Update the 'published' column in the database
-    $sql = "UPDATE posts SET published = 1 WHERE id = ?";
+    $sql = "UPDATE programs SET published = 1 WHERE id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
         echo "Post published successfully!";
-        header("Location: post.php");
+        header("Location: Programs.php");
     } else {
         echo "Error publishing the post: " . $stmt->error;
     }
@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publish<title>
+    <title>Publish Post | Blog Template</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -70,7 +70,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <h1>Publish Post</h1>
-    <form action="publish.php" method="post" id="publishForm">
+    <form action="publishPrograms.php" method="post" id="publishForm">
         <input type="hidden" name="id" value="<?php echo $_GET['id']; ?>">
         <button type="button" onclick="confirmPublish()">Publish</button>
     </form>

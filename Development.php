@@ -50,7 +50,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="CSS/admin-style.css">
-    <title>Automation</title>
+    <title>Development</title>
 </head>
 
 <body>
@@ -62,7 +62,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
         <div class="page-content">
             <div class="admin-container">
                 <div class="admin-table lg-box">
-                    <h1 class="center">Automation</h1>
+                    <h1 class="center">Development </h1>
                     <hr>
 
                     
@@ -73,7 +73,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
                         </div>
                         <div class="table-buttons">
                            
-                            <a href="createpost.php" class="btn primary-btn small-btn">
+                            <a href="createDevelopment.php" class="btn primary-btn small-btn">
                                 <ion-icon name="add-circle-outline" class="icon"></ion-icon>
                                 Add Project
                             </a>
@@ -108,7 +108,7 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
                     }
                     
                     // Query the database to fetch posts
-                    $sql = "SELECT id, title, topic, published, username FROM posts";
+                    $sql = "SELECT id, title, topic, published, username FROM development";
                     $result = $conn->query($sql);
                     
                     // Check if there are results
@@ -133,8 +133,8 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
                             echo '<td>' . ($row['published'] == 1 ? 'Published' : 'Not Published') . '</td>';
                             echo '<td>' . $row['username'] . '</td>';
 
-                            echo "<td><a href='showupdatepost.php?id=" . $row["id"] . "' class='edit'>Update</a></td>";
-                            echo "<td><a href='delete.php?id=" . $row["id"] . "' class='delete'>Delete</a></td>";
+                            echo "<td><a href='showupdateDevelopments.php?id=" . $row["id"] . "' class='edit'>Update</a></td>";
+                            echo "<td><a href='deleteDevelopment.php?id=" . $row["id"] . "' class='delete'>Delete</a></td>";
                             echo "<td><a href='publish.php?id=". $row["id"] . "' class='publish'>Publish</a></td>";
 
                             echo '</tr>';

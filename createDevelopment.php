@@ -64,8 +64,7 @@ if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];
 
     // Use prepared statements to protect against SQL injection
-    $sql = "SELECT topic FROM topic WHERE username = ? AND Category = 'Automation'";
-
+    $sql = "SELECT topic FROM topic WHERE username = ? AND Category = 'Development'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username); // "s" represents a string
 
@@ -151,7 +150,7 @@ $conn->close();
         <!-- ==== PAGE CONTENT ==== -->
         <div class="page-content">
             <div class="admin-container">
-                <form action="addpost.php" method="post"  class="admin-form md-box" enctype="multipart/form-data">
+                <form action="addDevelopment.php" method="post"  class="admin-form md-box" enctype="multipart/form-data">
                     <h1 class="center form-title">Create Project</h1>
                     
 

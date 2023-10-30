@@ -597,9 +597,7 @@ h6 {
     justify-content: space-between;
 }
 
-.auth-form.sm-form {
-    margin: 10rem auto;
-}
+
 
 .auth-form .lead-text {
     font-size: 1.125rem;

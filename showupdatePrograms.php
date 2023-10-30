@@ -1,44 +1,52 @@
 <?php
 session_start(); // Start the session
 
-// Check if the user is logged in
-if (isset($_SESSION['user_id']) && isset($_SESSION['username'])) {
-    $user_id = $_SESSION['user_id'];
-    $username = $_SESSION['username'];
+$servername = "localhost";
+$username = "root";
+$password = "";
+$database = "blogingwebsite_internship";
 
-    // Connect to the MySQL database
-    $servername = "localhost";
-    $username = "root";
-    $password = "";
-    $database = "blogingwebsite_internship";
+$conn = new mysqli($servername, $username, $password, $database);
 
-    $conn = new mysqli($servername, $username, $password, $database);
+// Check connection
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
 
-    // Check connection
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
+if (isset($_GET['id'])) {
+    $id = $_GET['id'];
 
-    // Query the database to get the user's profile name
-    $sql = "SELECT username FROM userregistration WHERE id = ?";
+    // Use prepared statements to protect against SQL injection
+    $sql = "SELECT title, body, topic, image FROM programs WHERE id = ?";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id);
-    $stmt->execute();
-    $stmt->bind_result($username);
+    $stmt->bind_param("i", $id); // "i" represents an integer, adjust the type if needed
 
-    // Fetch the profile name
-    if ($stmt->fetch()) {
-        // Display the user's profile name
-        $userProfileName = $username;
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+
+        if ($result->num_rows == 1) {
+            $row = $result->fetch_assoc();
+            $title = $row['title'];
+            $editor = $row['body'];
+            $topic = $row['topic'];
+            $image = $row['image'];
+        } else {
+            echo "No post found with the given ID.";
+            exit();
+        }
+    } else {
+        echo "Error executing the query: " . $stmt->error;
+        exit();
     }
 
     $stmt->close();
-    $conn->close();
 } else {
-    // Redirect to the login page if the user is not logged in
-    header("Location: login.php");
+    echo "Invalid request.";
+    $conn->close();
     exit();
 }
+
+$conn->close();
 ?>
 
 <?php
@@ -64,8 +72,7 @@ if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];
 
     // Use prepared statements to protect against SQL injection
-    $sql = "SELECT topic FROM topic WHERE username = ? AND Category = 'Automation'";
-
+    $sql = "SELECT topic FROM topic WHERE username = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username); // "s" represents a string
 
@@ -86,41 +93,6 @@ if (isset($_SESSION['username'])) {
 
 $conn->close();
 ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -151,17 +123,17 @@ $conn->close();
         <!-- ==== PAGE CONTENT ==== -->
         <div class="page-content">
             <div class="admin-container">
-                <form action="addpost.php" method="post"  class="admin-form md-box" enctype="multipart/form-data">
-                    <h1 class="center form-title">Create Project</h1>
-                    
+                <form action="updatePrograms.php" method="post" class="admin-form md-box" enctype="multipart/form-data">
+                    <input type="hidden" name="id" value="<?php echo $id; ?>">
+                    <h1 class="center form-title">Update Post</h1>
 
                     <div class="input-group">
                         <label for="title">Title</label>
-                        <input type="text" name="title" id="title" class="input-control">
+                        <input type="text" name="title" id="title" value="<?php echo $title; ?>" class="input-control">
                     </div>
                     <div class="input-group">
-                        <label for="post-editor">Body</label>
-                        <textarea name="editor"></textarea>
+                        <label for="editor">Body</label>
+                        <textarea name="editor" id="editor"><?php echo $editor; ?></textarea>
                     </div>
                     <div class="post-details">
                     <div class="select-topic-wrapper">
@@ -177,11 +149,12 @@ $conn->close();
         </select>
     </div>
 </div>
+                        <!-- <option value="<?php echo $topic; ?>"><?php echo $topic; ?></option> -->
                         <div class="image-wrapper">
-                            <input type="file" name="image" class="hide image-input" accept="image/*, video/*" multiple>
+                            <input type="file" name="image" class="hide image-input">
                             <button type="button" class="image-btn bg-image">
                                 <span class="choose-image-label">
-                                    <ion-icon name="image-outline" class="image-outline"></ion-icon>
+                                    <ion-icon name="image_outline" class="image-outline"></ion-icon>
                                     <span>Choose Image</span>
                                 </span>
                             </button>
@@ -200,6 +173,7 @@ $conn->close();
                 </form>
             </div>
         </div>
+    </div>
     </div>
 
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>

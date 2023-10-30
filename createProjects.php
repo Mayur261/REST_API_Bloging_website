@@ -64,8 +64,7 @@ if (isset($_SESSION['username'])) {
     $username = $_SESSION['username'];
 
     // Use prepared statements to protect against SQL injection
-    $sql = "SELECT topic FROM topic WHERE username = ? AND Category = 'Automation'";
-
+    $sql = "SELECT topic FROM topic WHERE username = ? AND Category = 'Projects'";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username); // "s" represents a string
 
@@ -138,7 +137,7 @@ $conn->close();
         href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap"
         rel="stylesheet">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="CSS/admin-style.css">
+    <link rel="stylesheet" type="text/css" href="https://celionatti.github.io/blog-template/assets/css/admin-style.css">
     <title>Admin Create Post | New Blog Template 2023</title>
 </head>
 
@@ -151,7 +150,7 @@ $conn->close();
         <!-- ==== PAGE CONTENT ==== -->
         <div class="page-content">
             <div class="admin-container">
-                <form action="addpost.php" method="post"  class="admin-form md-box" enctype="multipart/form-data">
+                <form action="addProjects.php" method="post"  class="admin-form md-box" enctype="multipart/form-data">
                     <h1 class="center form-title">Create Project</h1>
                     
 

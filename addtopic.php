@@ -13,10 +13,12 @@ if ($conn->connect_error) {
 }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['name']) && isset($_POST['description'])) {
+
+    if (isset($_POST['name']) && isset($_POST['description']) && isset($_POST['category'])) {
         $name = $_POST['name'];
         $description = $_POST['description'];
-
+        $category = $_POST['category'];
+        
         // Get the username from the session
         if (isset($_SESSION['username'])) {
             $username = $_SESSION['username'];
@@ -27,9 +29,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         // Use prepared statements to protect against SQL injection
-        $sql = "INSERT INTO topic (topic, info, username) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO topic (topic, info, username, Category) VALUES (?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $name, $description, $username);
+
+        // The "ssss" format matches the data types of the variables: four strings
+        $stmt->bind_param("ssss", $name, $description, $username, $category);
 
         if ($stmt->execute()) {
             // Topic added to the 'topic' table successfully
