@@ -1,49 +1,34 @@
 <?php
-session_start(); // Start the session
+session_start();
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "blogingwebsite_internship";
+if (isset($_GET['topic'])) {
+    $selectedTopic = $_GET['topic'];
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $database = "blogingwebsite_internship";
 
-$conn = new mysqli($servername, $username, $password, $database);
+    // Perform a database query to retrieve data based on the selected topic
+    // Example code for a MySQL database using PDO:
+    try {
+        $pdo = new PDO("mysql:host=$servername;dbname=$database", $username, $password);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+        $sql = "SELECT * FROM posts WHERE topic = :selectedTopic";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':selectedTopic', $selectedTopic, PDO::PARAM_STR);
+        $stmt->execute();
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['name']) && isset($_POST['description'])) {
-        $name = $_POST['name'];
-        $description = $_POST['description'];
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Get the username from the session
-        if (isset($_SESSION['username'])) {
-            $username = $_SESSION['username'];
-        } else {
-            // Handle the case where the username is not in the session
-            echo "Session username not set.";
-            exit();
+        foreach ($results as $row) {
+            echo "<h3>" . htmlspecialchars($row['title']) . "</h3>";
+            echo "<p>" . htmlspecialchars($row['body']) . "</p>";
         }
-
-        // Use prepared statements to protect against SQL injection
-        $sql = "INSERT INTO topic (topic, info, username) VALUES (?, ?, ?)";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("sss", $name, $description, $username);
-
-        if ($stmt->execute()) {
-            // Topic added to the 'topic' table successfully
-            header("Location: topic.php"); // Redirect to a topic list page or another appropriate location
-            exit();
-        } else {
-            echo "Error adding the topic to the 'topic' table: " . $stmt->error;
-        }
-
-        $stmt->close();
-    } else {
-        echo "Invalid request.";
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
     }
+} else {
+    echo "Topic parameter is required.";
 }
-
-$conn->close();
 ?>
